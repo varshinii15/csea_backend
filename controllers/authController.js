@@ -64,7 +64,7 @@ exports.validate = async (req, res) => {
 };
 
 exports.schema = (req, res) => {
-  res.sendFile('AdminUserSchema.json', { root: './schemas' });
+  res.sendFile('adminSchema.json', { root: './schemas' });
 };
 
 exports.check = async (req, res) => {

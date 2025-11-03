@@ -37,7 +37,7 @@
         "properties": {
           "google_auth": {
             "properties": {
-              "email": { "const": "csea.admin@psgtech.ac.in" }
+              "email": { "const": "csea.cse@psgtech.ac.in" }
             }
           }
         }
