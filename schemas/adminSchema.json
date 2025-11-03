@@ -1,0 +1,67 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "AdminUser",
+  "type": "object",
+  "required": ["google_auth"],
+  "properties": {
+    "google_auth": {
+      "type": "object",
+      "required": ["email", "google_id_token", "role"],
+      "properties": {
+        "email": {
+          "type": "string",
+          "format": "email"
+        },
+        "google_id_token": {
+          "type": "string",
+          "description": "The ID token returned from Google OAuth authentication"
+        },
+        "role": {
+          "type": "string",
+          "enum": ["admin", "member"],
+          "description": "User access level"
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "google_auth": {
+            "properties": { "role": { "const": "admin" } }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "google_auth": {
+            "properties": {
+              "email": { "const": "csea.admin@psgtech.ac.in" }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "google_auth": {
+            "properties": { "role": { "const": "member" } }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "google_auth": {
+            "properties": {
+              "email": {
+                "pattern": "^[0-9]{2}[zn][0-9]{3}@psgtech\\.ac\\.in$"
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

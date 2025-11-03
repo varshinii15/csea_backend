@@ -1,0 +1,39 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Member",
+  "type": "object",
+  "required": ["name", "vertical_id", "mem_role", "roll_no"],
+  "properties": {
+    "name": { "type": "string" },
+    "vertical_id": {
+      "type": "string",
+      "description": "Reference to the _id of a Vertical document"
+    },
+    "mem_role": {
+      "type": "string",
+      "enum": [
+        "secretary", "joint_sec", "executive",
+        "vertical_head", "associate_vertical_head",
+        "domain_head", "domain_coordinator", "general_member"
+      ]
+    },
+    "mem_image": {
+      "type": "string",
+      "format": "uri"
+    },
+    "roll_no": {
+      "type": "string"
+    }
+  },
+  "if": {
+    "properties": {
+      "mem_role": { "const": "general_member" }
+    }
+  },
+  "then": {
+    "required": ["name", "vertical_id", "mem_role", "roll_no"]
+  },
+  "else": {
+    "required": ["name", "vertical_id", "mem_role", "mem_image", "roll_no"]
+  }
+}
