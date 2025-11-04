@@ -183,9 +183,9 @@
     "wrappy": "^1.0.2"
   },
   "devDependencies": {},
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
+"scripts": {
+  "dev": "nodemon app.js"
+},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/varshinii15/csea_backend.git"
