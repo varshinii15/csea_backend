@@ -11,7 +11,6 @@ router.put('/update', verifyToken, auth.update);
 router.delete('/delete', verifyToken, auth.delete);
 router.get('/roles', auth.roles);
 router.get('/validate', auth.validate);
-router.get('/schema', auth.schema);
 router.get('/check/:email', auth.check);
 
 module.exports = router;
