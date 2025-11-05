@@ -3,20 +3,28 @@ const Vertical = require('../models/Vertical.js');
 
 // Create a new vertical
 exports.createVertical = async (req, res) => {
-  try {
-    const { vertical_name } = req.body;
+  const { vertical_name } = req.body;
 
-    // Check if vertical already exists
-    const existing = await Vertical.findOne({ vertical_name });
-    if (existing) {
-      return res.status(409).json({ message: 'Vertical already exists' });
+  if (!vertical_name) {
+    return res.status(400).json({ message: "vertical_name is required" });
+  }
+
+  // Optional: validate against enum
+  const allowed = ["obs", "design", "pr", "tech", "content_and_documentation", "events", "media"];
+  if (!allowed.includes(vertical_name)) {
+    return res.status(400).json({ message: "Invalid vertical_name" });
+  }
+
+  try {
+    const exists = await Vertical.findOne({ vertical_name });
+    if (exists) {
+      return res.status(409).json({ message: "Vertical already exists" });
     }
 
-    // Create new vertical
-    const vertical = await Vertical.create({ vertical_name });
-    res.status(201).json({ message: 'Vertical created successfully', vertical });
+    const newVertical = await Vertical.create({ vertical_name });
+    res.status(201).json({ message: "Vertical created", data: newVertical });
   } catch (err) {
-    res.status(400).json({ message: 'Failed to create vertical', error: err.message });
+    res.status(500).json({ message: "Failed to create vertical", error: err.message });
   }
 };
 
