@@ -29,11 +29,13 @@ app.get('/', (req, res) => {
 const adminRoutes = require('./routes/authRoutes.js');
 const memberRoutes = require('./routes/memberRoutes.js');
 const verticalRoutes = require('./routes/verticalRoutes.js');
+const eventRoutes = require('./routes/eventRoutes.js');
 
 
 app.use('/api/v1/auth', adminRoutes);
 app.use('/api/v1/verticals/:verticalId/members', memberRoutes);
 app.use('/api/v1/verticals', verticalRoutes);
+app.use('/api/v1/events', eventRoutes);
 
 
 // Server
