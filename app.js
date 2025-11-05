@@ -1,11 +1,13 @@
 // app.js
-const mongoose = require('mongoose');
-const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
 
 // Load environment variables
 dotenv.config();
+console.log('JWT_SECRET:', process.env.JWT_SECRET);
+
+const mongoose = require('mongoose');
+const express = require('express');
 
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log("MongoDB connected"))
@@ -27,13 +29,12 @@ app.get('/', (req, res) => {
 const adminRoutes = require('./routes/authRoutes.js');
 const memberRoutes = require('./routes/memberRoutes.js');
 const verticalRoutes = require('./routes/verticalRoutes.js');
-const eventRoutes = require('./routes/eventRoutes.js');
 
 
 app.use('/api/v1/auth', adminRoutes);
 app.use('/api/v1/verticals/:verticalId/members', memberRoutes);
 app.use('/api/v1/verticals', verticalRoutes);
-app.use('/api/v1/events', eventRoutes);
+
 
 // Server
 const PORT = process.env.PORT || 5000;
