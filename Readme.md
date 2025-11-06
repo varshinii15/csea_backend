@@ -32,7 +32,7 @@ Handles user registration, login, and profile management via Google OAuth.
 ```
 
 ----
-## 🧭 Vertical Module (`api/v1/verticals`)  
+## 🧭 Vertical Module (`api/v1/verticals/`)  
 Manages verticals : Office bearers, Tech, Design, Publicity and Sponsorship, Content and Documentation, Events and Media
 
 ### Endpoints:
@@ -56,7 +56,7 @@ Manages verticals : Office bearers, Tech, Design, Publicity and Sponsorship, Con
 }
 ```
 ---
-## 👥 Member Module (`api/v1/verticals/:verticalId/members`)  
+## 👥 Member Module (`api/v1/verticals/:verticalId/members/`)  
 Handles member profiles within each vertical.
 
 ### Endpoints:
@@ -125,6 +125,7 @@ Tracks events, including creation, updates, and participation.
   }
 }
 ```
+
 
 
 
