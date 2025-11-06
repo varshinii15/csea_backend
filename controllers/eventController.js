@@ -1,81 +1,93 @@
-const Event = require('../models/Event.js');
+const Event = require('../models/Event');
 
-// Create a new event
-exports.createEvent = async (req, res) => {
+// GET /events/upcoming
+exports.getUpcomingEvents = async (req, res) => {
   try {
-    const { eve_name, eve_descp, eve_date, eve_venue, eveimage_url, eve_reglink } = req.body;
+    const now = new Date();
+    const events = await Event.find({ startDate: { $gt: now } }).sort({ startDate: 1 });
 
-    // Check if event with same name already exists
-    const existing = await Event.findOne({ eve_name });
-    if (existing) {
-      return res.status(409).json({ message: 'Event already exists' });
-    }
-
-    const event = await Event.create({
-      eve_name,
-      eve_descp,
-      eve_date,
-      eve_venue,
-      eveimage_url,
-      eve_reglink
+    const formatted = events.map(event => {
+      const e = {
+        _id: event._id,
+        eve_name: event.eve_name,
+        eve_descp: event.eve_descp,
+        startDate: event.startDate,
+        endDate: event.endDate,
+        venueStart: event.venueStart,
+        venueEnd: event.venueEnd,
+        eveimage_url: event.eveimage_url
+      };
+      if (event.eve_reglink) e.eve_reglink = event.eve_reglink;
+      return e;
     });
 
-    res.status(201).json({ message: 'Event created successfully', event });
+    res.status(200).json(formatted);
   } catch (err) {
-    res.status(400).json({ message: 'Failed to create event', error: err.message });
+    res.status(500).json({ error: 'Failed to fetch upcoming events' });
   }
 };
 
-// Get all events
+// GET /events/past
+exports.getPastEvents = async (req, res) => {
+  try {
+    const now = new Date();
+    const events = await Event.find({ startDate: { $lte: now } }).sort({ startDate: -1 });
+    res.status(200).json(events);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch past events' });
+  }
+};
+
+// GET /events
 exports.getAllEvents = async (req, res) => {
   try {
-    const events = await Event.find();
-    res.json(events);
+    const events = await Event.find({}).sort({ startDate: 1 });
+    res.status(200).json(events);
   } catch (err) {
-    res.status(500).json({ message: 'Failed to fetch events', error: err.message });
+    res.status(500).json({ error: 'Failed to fetch events' });
   }
 };
 
-// Get a single event by ID
+// GET /events/:id
 exports.getEventById = async (req, res) => {
   try {
     const event = await Event.findById(req.params.id);
-    if (!event) return res.status(404).json({ message: 'Event not found' });
-    res.json(event);
+    if (!event) return res.status(404).json({ error: 'Event not found' });
+    res.status(200).json(event);
   } catch (err) {
-    res.status(500).json({ message: 'Failed to fetch event', error: err.message });
+    res.status(500).json({ error: 'Failed to fetch event' });
   }
 };
 
-// Update event
+// POST /events
+exports.createEvent = async (req, res) => {
+  try {
+    const newEvent = new Event(req.body);
+    await newEvent.save();
+    res.status(201).json(newEvent);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+};
+
+// PUT /events/:id
 exports.updateEvent = async (req, res) => {
   try {
     const updated = await Event.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    if (!updated) return res.status(404).json({ message: 'Event not found' });
-    res.json({ message: 'Event updated successfully', updated });
+    if (!updated) return res.status(404).json({ error: 'Event not found' });
+    res.status(200).json(updated);
   } catch (err) {
-    res.status(400).json({ message: 'Failed to update event', error: err.message });
+    res.status(400).json({ error: err.message });
   }
 };
 
-// Delete event
+// DELETE /events/:id
 exports.deleteEvent = async (req, res) => {
   try {
     const deleted = await Event.findByIdAndDelete(req.params.id);
-    if (!deleted) return res.status(404).json({ message: 'Event not found' });
-    res.json({ message: 'Event deleted successfully' });
+    if (!deleted) return res.status(404).json({ error: 'Event not found' });
+    res.status(200).json({ message: 'Event deleted successfully' });
   } catch (err) {
-    res.status(500).json({ message: 'Failed to delete event', error: err.message });
-  }
-};
-
-// Check if an event exists by name
-exports.checkEvent = async (req, res) => {
-  try {
-    const { eve_name } = req.params;
-    const exists = await Event.findOne({ eve_name });
-    res.json({ exists: !!exists });
-  } catch (err) {
-    res.status(500).json({ message: 'Error checking event', error: err.message });
+    res.status(500).json({ error: 'Failed to delete event' });
   }
 };
