@@ -1,30 +1,32 @@
 // controllers/VerticalController.js
 const Vertical = require('../models/Vertical.js');
+const validateSchema = require('../middleware/validateSchema.js');
+
+const verticalSchema = {
+  type: 'object',
+  required: ['vertical_name'],
+  properties: {
+    vertical_name: {
+      type: 'string',
+      enum: [
+        'obs', 'design', 'pr', 'tech',
+        'content_and_documentation', 'events', 'media'
+      ]
+    }
+  },
+  additionalProperties: false
+};
 
 // Create a new vertical
 exports.createVertical = async (req, res) => {
-  const { vertical_name } = req.body;
-
-  if (!vertical_name) {
-    return res.status(400).json({ message: "vertical_name is required" });
-  }
-
-  // Optional: validate against enum
-  const allowed = ["obs", "design", "pr", "tech", "content_and_documentation", "events", "media"];
-  if (!allowed.includes(vertical_name)) {
-    return res.status(400).json({ message: "Invalid vertical_name" });
-  }
+  const { valid, errors } = validateSchema(verticalSchema)(req.body);
+  if (!valid) return res.status(400).json({ message: 'Validation failed', errors });
 
   try {
-    const exists = await Vertical.findOne({ vertical_name });
-    if (exists) {
-      return res.status(409).json({ message: "Vertical already exists" });
-    }
-
-    const newVertical = await Vertical.create({ vertical_name });
-    res.status(201).json({ message: "Vertical created", data: newVertical });
+    const vertical = await Vertical.create(req.body);
+    res.status(201).json(vertical);
   } catch (err) {
-    res.status(500).json({ message: "Failed to create vertical", error: err.message });
+    res.status(500).json({ message: 'Failed to create vertical', error: err.message });
   }
 };
 
@@ -51,17 +53,15 @@ exports.getVerticalById = async (req, res) => {
 
 // Update vertical
 exports.updateVertical = async (req, res) => {
+  const { valid, errors } = validateSchema(verticalSchema)(req.body);
+  if (!valid) return res.status(400).json({ message: 'Validation failed', errors });
+
   try {
-    const { vertical_name } = req.body;
-    const updated = await Vertical.findByIdAndUpdate(
-      req.params.id,
-      { vertical_name },
-      { new: true }
-    );
+    const updated = await Vertical.findByIdAndUpdate(req.params.id, req.body, { new: true });
     if (!updated) return res.status(404).json({ message: 'Vertical not found' });
-    res.json({ message: 'Vertical updated successfully', updated });
+    res.json(updated);
   } catch (err) {
-    res.status(400).json({ message: 'Failed to update vertical', error: err.message });
+    res.status(500).json({ message: 'Failed to update vertical', error: err.message });
   }
 };
 
