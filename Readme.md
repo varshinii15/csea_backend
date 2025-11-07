@@ -11,7 +11,7 @@ Request Body
 ```json
 {
   "google_auth": {
-    "email": "21z334psgtech.ac.in",
+    "email": "21z334@psgtech.ac.in",
     "google_id_token": "<valid_google_id_token>",
     "role": "member"
   }
@@ -125,7 +125,7 @@ Request Body
   "google_id_token": "valid_google_token"
 }
 ```
-Success Messade
+Success Message
 ```json
 {
   "email": "csea.cse@psgtech.ac.in",
@@ -143,8 +143,6 @@ Success Message
   "exists": true
 }
 ```
----
-
 ----
 ## 🧭 Vertical Module (`api/v1/verticals/`)  
 Manages verticals : Office bearers, Tech, Design, Publicity and Sponsorship, Content and Documentation, Events and Media
@@ -234,9 +232,9 @@ Success Message
 [
   {
     "_id": "member_id",
-    "name": "John Doe",
+    "name": "XYZ",
     "mem_role": "executive",
-    "roll_no": "22zn001",
+    "roll_no": "19z341",
     "vertical_id": "vertical_id"
   }
 ]
@@ -250,10 +248,10 @@ Creates a new member.
 Request Body
 ```json
 {
-  "name": "John Doe",
+  "name": "XYZ",
   "vertical_id": "vertical_id",
   "mem_role": "executive",
-  "roll_no": "22zn001",
+  "roll_no": "21n401",
   "mem_image": "https://example.com/image.jpg"
 }
 ```
@@ -261,10 +259,10 @@ Success Message
 ```json
 {
   "_id": "member_id",
-  "name": "John Doe",
+  "name": "XYZ",
   "vertical_id": "vertical_id",
   "mem_role": "executive",
-  "roll_no": "22z301",
+  "roll_no": "21n401",
   "mem_image": "https://example.com/image.jpg"
 }
 ```
@@ -277,10 +275,10 @@ Success Message
 ```json
 {
   "_id": "member_id",
-  "name": "John Doe",
+  "name": "XYZ",
   "vertical_id": "vertical_id",
   "mem_role": "executive",
-  "roll_no": "22zn001",
+  "roll_no": "22z333",
   "mem_image": "https://example.com/image.jpg"
 }
 ```
@@ -292,7 +290,7 @@ Updates the member details.
 Request Body
 ```json
 {
-  "name": "John Doe",
+  "name": "XYZ",
   "vertical_id": "vertical_id",
   "mem_role": "executive",
   "roll_no": "20n310", //roll no updated
@@ -303,10 +301,10 @@ Success Message
 ```json
 {
   "_id": "member_id",
-  "name": "John Doe",
+  "name": "XYZ",
   "vertical_id": "vertical_id",
   "mem_role": "executive",
-  "roll_no": "22zn001",
+  "roll_no": "20n310",
   "mem_image": "https://example.com/image.jpg"
 }
 ```
@@ -335,9 +333,9 @@ Success Message
 [
   {
     "_id": "event_id",
-    "eve_name": "Tech Talk",
-    "startDate": "2025-11-10T10:00:00Z",
-    "endDate": "2025-11-10T12:00:00Z"
+    "eve_name": "codenvibe",
+    "startDate": "2025-09-24T10:00:00Z",
+    "endDate": "2025-09-24T12:00:00Z"
   }
 ]
 ```
@@ -370,9 +368,9 @@ Success Message
 [
   {
     "_id": "event_id",
-    "eve_name": "Tech Talk",
-    "startDate": "2025-10-01T10:00:00Z",
-    "endDate": "2025-10-01T12:00:00Z"
+    "eve_name": "codenvibe",
+    "startDate": "2025-09-24T10:00:00Z",
+    "endDate": "2025-09-24T12:00:00Z"
   }
 ]
 ```
@@ -383,12 +381,12 @@ Creates a new event.
 Request Body
 ```json
 {
-  "eve_name": "Tech Talk",
+  "eve_name": "Ikigai in AI",
   "eve_descp": "A session on AI",
   "startDate": "2025-11-10T10:00:00Z",
   "endDate": "2025-11-10T12:00:00Z",
-  "venueStart": "Auditorium",
-  "venueEnd": "Auditorium",
+  "venueStart": "AIR Lab",
+  "venueEnd": "SCPS Lab",
   "eveimage_url": "https://example.com/image.jpg",
   "eve_reglink": "https://example.com/register"
 }
@@ -397,19 +395,19 @@ Success Message
 ```json
 {
   "_id": "event_id",
-  "eve_name": "Tech Talk",
+  "eve_name": "Ikigai in AI",
   "eve_descp": "A session on AI",
   "startDate": "2025-11-10T10:00:00Z",
   "endDate": "2025-11-10T12:00:00Z",
-  "venueStart": "Auditorium",
-  "venueEnd": "Auditorium",
+  "venueStart": "AIR Lab",
+  "venueEnd": "SCPS Lab",
   "eveimage_url": "https://example.com/image.jpg",
   "eve_reglink": "https://example.com/register"
 }
 ```
 - `GET api/v1/events/:eventId`
   
-Updates the member details.
+Fetches the events by ID
 
 Success Message
 ```json
@@ -464,6 +462,7 @@ Success Message
   "message": "Event deleted successfully"
 }
 ```
+
 
 
 
