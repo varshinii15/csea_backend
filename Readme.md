@@ -4,7 +4,8 @@
 Handles user registration, login, and profile management via Google OAuth.
 
 - `POST api/v1/auth/register`
-  Registers a new user via Google OAuth.
+  
+Registers a new user via Google OAuth.
 
 Request Body
 ```json
@@ -16,7 +17,7 @@ Request Body
   }
 }
 ```
-Success Body
+Success Message
 ```json
 {
   "token": "jwt_token_here"
@@ -24,9 +25,10 @@ Success Body
 ```
 ---
 - `POST api/v1/auth/login`
-  Logs in an existing user.
+  
+Logs in an existing user.
 
-  Request Body
+Request Body
 ```json
 {
   "google_auth": {
@@ -34,7 +36,7 @@ Success Body
   }
 }
 ```
-Success Body
+Success Message
 ```json
 {
   "token": "jwt_token_here"
@@ -42,9 +44,10 @@ Success Body
 ```
 ---
 - `GET api/v1/auth/me`
- Returns authenticated user details.
+  
+Returns authenticated user details.
 
-  Success Message
+Success Message
 ```json
 {
   "_id": "user_id",
@@ -56,9 +59,10 @@ Success Body
 ```
 ---
 - `POST api/v1/auth/logout`
+  
 Logs out the user.
   
-Success Body
+Success Message
 ```json
 {
   "message": "Logged out (client should delete token)"
@@ -66,6 +70,7 @@ Success Body
 ```
 ---
 - `PUT api/v1/auth/update`
+  
 Updates user details.
 
 Request Body 
@@ -77,7 +82,7 @@ Request Body
   }
 }
 ```
-Success Body
+Success Message
 ```json
 {
   "_id": "user_id",
@@ -89,9 +94,10 @@ Success Body
 ```
 ---
 - `DELETE api/v1/auth/delete`
+  
 Deletes the user account.
 
-Success Body
+Success Message
 ```json
 {
   "message": "Account deleted"
@@ -99,9 +105,10 @@ Success Body
 ```
 ---
 - `GET api/v1/auth/roles`
-  Lists available roles.
   
-Success Body
+Lists available roles.
+  
+Success Message
 ```json
 {
 ["admin", "member"]
@@ -109,15 +116,16 @@ Success Body
 ```
 ---
 - `POST api/v1/auth/validate`
-  Validates a Google ID token and returns role.
   
-  Request Body
+Validates a Google ID token and returns role.
+  
+Request Body
 ```json
 {
   "google_id_token": "valid_google_token"
 }
 ```
-Success Body
+Success Messade
 ```json
 {
   "email": "csea.cse@psgtech.ac.in",
@@ -126,9 +134,10 @@ Success Body
 ```
 ---
 - `GET api/v1/auth/check/:email`
-  Checks if a user is registered.
   
-Success Body
+Checks if a user is registered.
+  
+Success Message
 ```json
 {
   "exists": true
@@ -141,179 +150,321 @@ Success Body
 Manages verticals : Office bearers, Tech, Design, Publicity and Sponsorship, Content and Documentation, Events and Media
 
 - `GET api/v1/verticals/all`
-  Request Body
+  
+Fetches all verticals.
+
+Success Message
 ```json
-{
-  "google_auth": {
-    "email": "21z334psgtech.ac.in",
-    "google_id_token": "<valid_google_id_token>",
-    "role": "member"
+[
+  {
+    "_id": "vertical_id",
+    "vertical_name": "tech"
   }
-}
-```
-Success Body
-```json
-{
-  "token": "jwt_token_here"
-}
+]
 ```
 ---
 - `POST api/v1/verticals/create`
-  Request Body
+  
+Create a new vertical.
+  
+Request Body
 ```json
 {
-  "google_auth": {
-    "email": "21z334psgtech.ac.in",
-    "google_id_token": "<valid_google_id_token>",
-    "role": "member"
-  }
+  "vertical_name": "design"
 }
 ```
-Success Body
+Success Message
 ```json
 {
-  "token": "jwt_token_here"
+  "_id": "vertical_id",
+  "vertical_name": "design"
 }
 ```
 ---
 - `GET api/v1/verticals/:id`
-  Request Body
+  
+Fetches a vertical by ID.
+  
+Success Message
 ```json
 {
-  "google_auth": {
-    "email": "21z334psgtech.ac.in",
-    "google_id_token": "<valid_google_id_token>",
-    "role": "member"
-  }
-}
-```
-Success Body
-```json
-{
-  "token": "jwt_token_here"
+  "_id": "vertical_id",
+  "vertical_name": "tech"
 }
 ```
 ---
 - `PUT api/v1/verticals/update/:id`
-  Request Body
+  
+Updates a vertical.
+  
+Request Body
 ```json
 {
-  "google_auth": {
-    "email": "21z334psgtech.ac.in",
-    "google_id_token": "<valid_google_id_token>",
-    "role": "member"
-  }
+  "vertical_name": "media"
 }
 ```
-Success Body
+Success Message
 ```json
 {
-  "token": "jwt_token_here"
+  "_id": "vertical_id",
+  "vertical_name": "media"
 }
 ```
 ---
 - `DELETE api/v1/verticals/:id`
-  Request Body
-```json
-{
-  "google_auth": {
-    "email": "21z334psgtech.ac.in",
-    "google_id_token": "<valid_google_id_token>",
-    "role": "member"
-  }
-}
-```
-Success Body
-```json
-{
-  "token": "jwt_token_here"
-}
-```
----
+  
+Deletes a vertical.
 
-### Sample Request: Create Vertical
+Success Message
 ```json
 {
-  "vertical_name": "tech"
-}
-```
-### Response body
-```json
-{
-  "_id": "654321abcdef",
-  "vertical_name": "tech"
+  "message": "Vertical deleted successfully"
 }
 ```
 ---
 ## 👥 Member Module (`api/v1/verticals/:verticalId/members/`)  
 Handles member profiles within each vertical.
 
-### Endpoints:
-- `GET api/v1/verticals/:verticalId/members`  
-- `POST api/v1/verticals/:verticalId/members`  
-- `GET api/v1/verticals/:verticalId/members/:memberId`  
-- `PUT api/v1/verticals/:verticalId/members/:memberId`  
-- `DELETE api/v1/verticals/:verticalId/members/:memberId`
+- `GET api/v1/verticals/:verticalId/members`
 
-### Sample Request: Add Member
+Fetches all members in a vertical.
+ 
+Success Message
+```json
+[
+  {
+    "_id": "member_id",
+    "name": "John Doe",
+    "mem_role": "executive",
+    "roll_no": "22zn001",
+    "vertical_id": "vertical_id"
+  }
+]
+```
+---
+   
+- `POST api/v1/verticals/:verticalId/members`
+  
+Creates a new member.
+
+Request Body
 ```json
 {
-  "name": "XYZ",
-  "mem_role": "vertical_head",
-  "mem_image": "https://example.com/image.png",
-  "roll_no": "21N223"
+  "name": "John Doe",
+  "vertical_id": "vertical_id",
+  "mem_role": "executive",
+  "roll_no": "22zn001",
+  "mem_image": "https://example.com/image.jpg"
 }
 ```
-### Response body
+Success Message
 ```json
 {
-  "_id": "7890abcdef123456",
-  "name": "XYZ",
-  "mem_role": "vertical_head",
-  "mem_image": "https://example.com/image.png",
-  "roll_no": "22z261"
+  "_id": "member_id",
+  "name": "John Doe",
+  "vertical_id": "vertical_id",
+  "mem_role": "executive",
+  "roll_no": "22z301",
+  "mem_image": "https://example.com/image.jpg"
 }
 ```
+---
+- `GET api/v1/verticals/:verticalId/members/:memberId`
+  
+Get Member details by vertical.
+  
+Success Message
+```json
+{
+  "_id": "member_id",
+  "name": "John Doe",
+  "vertical_id": "vertical_id",
+  "mem_role": "executive",
+  "roll_no": "22zn001",
+  "mem_image": "https://example.com/image.jpg"
+}
+```
+---
+- `PUT api/v1/verticals/:verticalId/members/:memberId`
+  
+Updates the member details.
+  
+Request Body
+```json
+{
+  "name": "John Doe",
+  "vertical_id": "vertical_id",
+  "mem_role": "executive",
+  "roll_no": "20n310", //roll no updated
+  "mem_image": "https://example.com/image.jpg"
+}
+```
+Success Message
+```json
+{
+  "_id": "member_id",
+  "name": "John Doe",
+  "vertical_id": "vertical_id",
+  "mem_role": "executive",
+  "roll_no": "22zn001",
+  "mem_image": "https://example.com/image.jpg"
+}
+```
+---
+- `DELETE api/v1/verticals/:verticalId/members/:memberId`
+  
+Deletes a member.
+  
+Success Message
+```json
+{
+  "message": "Member deleted"
+}
+```
+
 -----
 ## 🎉 Event Module (`api/v1/events/`)  
 Tracks events, including creation, updates, and participation.
 
-### Endpoints:
-- `GET api/v1/events`  
-- `GET api/v1/events/upcoming`  
-- `GET api/v1/events/past`  
-- `POST api/v1/events`  
-- `GET api/v1/events/:eventId`  
-- `PUT api/v1/events/:eventId`  
+- `GET api/v1/events`
+  
+Gets the details of every events
+  
+Success Message
+```json
+[
+  {
+    "_id": "event_id",
+    "eve_name": "Tech Talk",
+    "startDate": "2025-11-10T10:00:00Z",
+    "endDate": "2025-11-10T12:00:00Z"
+  }
+]
+```
+- `GET api/v1/events/upcoming`
+  
+Fetches the upcoming event details.
+
+Success Message
+```json
+[
+  {
+    "_id": "event_id",
+    "eve_name": "Tech Talk",
+    "eve_descp": "A session on AI",
+    "startDate": "2025-11-10T10:00:00Z",
+    "endDate": "2025-11-10T12:00:00Z",
+    "venueStart": "Auditorium",
+    "venueEnd": "Auditorium",
+    "eveimage_url": "https://example.com/image.jpg",
+    "eve_reglink": "https://example.com/register"
+  }
+]
+```
+- `GET api/v1/events/past`
+  
+Fetches the details of past events
+  
+Success Message
+```json
+[
+  {
+    "_id": "event_id",
+    "eve_name": "Tech Talk",
+    "startDate": "2025-10-01T10:00:00Z",
+    "endDate": "2025-10-01T12:00:00Z"
+  }
+]
+```
+- `POST api/v1/events`
+  
+Creates a new event.
+  
+Request Body
+```json
+{
+  "eve_name": "Tech Talk",
+  "eve_descp": "A session on AI",
+  "startDate": "2025-11-10T10:00:00Z",
+  "endDate": "2025-11-10T12:00:00Z",
+  "venueStart": "Auditorium",
+  "venueEnd": "Auditorium",
+  "eveimage_url": "https://example.com/image.jpg",
+  "eve_reglink": "https://example.com/register"
+}
+```
+Success Message
+```json
+{
+  "_id": "event_id",
+  "eve_name": "Tech Talk",
+  "eve_descp": "A session on AI",
+  "startDate": "2025-11-10T10:00:00Z",
+  "endDate": "2025-11-10T12:00:00Z",
+  "venueStart": "Auditorium",
+  "venueEnd": "Auditorium",
+  "eveimage_url": "https://example.com/image.jpg",
+  "eve_reglink": "https://example.com/register"
+}
+```
+- `GET api/v1/events/:eventId`
+  
+Updates the member details.
+
+Success Message
+```json
+{
+  "_id": "event_id",
+  "eve_name": "Tech Talk",
+  "eve_descp": "A session on AI",
+  "startDate": "2025-11-10T10:00:00Z",
+  "endDate": "2025-11-10T12:00:00Z",
+  "venueStart": "Auditorium",
+  "venueEnd": "Auditorium",
+  "eveimage_url": "https://example.com/image.jpg",
+  "eve_reglink": "https://example.com/register"
+}
+```
+- `PUT api/v1/events/:eventId`
+  
+Updates the events details.
+  
+Request Body
+```json
+{
+  "eve_name": "Tech Talk 2025",
+  "eve_descp": "A session on emerging AI trends and applications.",
+  "startDate": "2025-11-15T10:00:00Z",
+  "endDate": "2025-11-15T12:00:00Z",
+  "venueStart": "Main Auditorium",
+  "venueEnd": "Main Auditorium",
+  "eveimage_url": "https://example.com/images/techtalk2025.jpg",
+  "eve_reglink": "https://example.com/register/techtalk2025"
+}
+```
+Success Message
+```json
+{
+  "_id": "event_id",
+  "eve_name": "Updated Event Name",
+  "eve_descp": "Updated description",
+  "startDate": "2025-11-15T10:00:00Z",
+  "endDate": "2025-11-15T12:00:00Z",
+  "venueStart": "Main Hall",
+  "venueEnd": "Main Hall",
+  "eveimage_url": "https://example.com/updated-image.jpg",
+  "eve_reglink": "https://example.com/updated-register"
+}
+```
 - `DELETE api/v1/events/:eventId`
 
-### Sample Request: Create Event
+Success Message
 ```json
 {
-  "title": "Tech Talk",
-  "description": "Scalable backend design",
-  "date": "2025-11-10T10:00:00.000Z",
-  "venue": "GRD Lab",
-  "created_by": "csea.cse@psgtech.ac.in",
-  "participants": [
-    {
-      "name": "YzX",
-      "email": "22n421@psgtech.ac.in"
-    }
-  ]
+  "message": "Event deleted successfully"
 }
 ```
-### Response body
-```json
-{
-  "message": "Event created successfully",
-  "event": {
-    "_id": "event1",
-    "title": "Tech Talk",
-    "location": "GRD Lab"
-  }
-}
-```
+
 
 
 
