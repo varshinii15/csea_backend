@@ -3,18 +3,10 @@
 ## 🔐 Auth Module (`api/v1/auth/`)  
 Handles user registration, login, and profile management via Google OAuth.
 
-### Endpoints:
-- `POST api/v1/auth/register`  
-- `POST api/v1/auth/login`  
-- `GET api/v1/auth/me`  
-- `POST api/v1/auth/logout`  
-- `PUT api/v1/auth/update`  
-- `DELETE api/v1/auth/delete`  
-- `GET api/v1/auth/roles`  
-- `POST api/v1/auth/validate`  
-- `GET api/v1/auth/check/:email`
+- `POST api/v1/auth/register`
+  Registers a new user via Google OAuth.
 
-### Sample Request: Register
+Request Body
 ```json
 {
   "google_auth": {
@@ -24,23 +16,220 @@ Handles user registration, login, and profile management via Google OAuth.
   }
 }
 ```
-### Response body
+Success Body
 ```json
 {
-  "token": "<jwt_token>"
+  "token": "jwt_token_here"
 }
 ```
+---
+- `POST api/v1/auth/login`
+  Logs in an existing user.
+
+  Request Body
+```json
+{
+  "google_auth": {
+    "email": "csea.cse@psgtech.ac.in"
+  }
+}
+```
+Success Body
+```json
+{
+  "token": "jwt_token_here"
+}
+```
+---
+- `GET api/v1/auth/me`
+ Returns authenticated user details.
+
+  Success Message
+```json
+{
+  "_id": "user_id",
+  "google_auth": {
+    "email": "csea.cse@psgtech.ac.in",
+    "role": "admin"
+  }
+}
+```
+---
+- `POST api/v1/auth/logout`
+Logs out the user.
+  
+Success Body
+```json
+{
+  "message": "Logged out (client should delete token)"
+}
+```
+---
+- `PUT api/v1/auth/update`
+Updates user details.
+
+Request Body 
+```json
+{
+  "google_auth": {
+    "email": "csea.cse@psgtech.ac.in",
+    "role": "admin"
+  }
+}
+```
+Success Body
+```json
+{
+  "_id": "user_id",
+  "google_auth": {
+    "email": "csea.cse@psgtech.ac.in",
+    "role": "admin"
+  }
+}
+```
+---
+- `DELETE api/v1/auth/delete`
+Deletes the user account.
+
+Success Body
+```json
+{
+  "message": "Account deleted"
+}
+```
+---
+- `GET api/v1/auth/roles`
+  Lists available roles.
+  
+Success Body
+```json
+{
+["admin", "member"]
+}
+```
+---
+- `POST api/v1/auth/validate`
+  Validates a Google ID token and returns role.
+  
+  Request Body
+```json
+{
+  "google_id_token": "valid_google_token"
+}
+```
+Success Body
+```json
+{
+  "email": "csea.cse@psgtech.ac.in",
+  "role": "admin"
+}
+```
+---
+- `GET api/v1/auth/check/:email`
+  Checks if a user is registered.
+  
+Success Body
+```json
+{
+  "exists": true
+}
+```
+---
 
 ----
 ## 🧭 Vertical Module (`api/v1/verticals/`)  
 Manages verticals : Office bearers, Tech, Design, Publicity and Sponsorship, Content and Documentation, Events and Media
 
-### Endpoints:
-- `GET api/v1/verticals/all`  
-- `POST api/v1/verticals/create`  
-- `GET api/v1/verticals/:id`  
-- `PUT api/v1/verticals/update/:id`  
+- `GET api/v1/verticals/all`
+  Request Body
+```json
+{
+  "google_auth": {
+    "email": "21z334psgtech.ac.in",
+    "google_id_token": "<valid_google_id_token>",
+    "role": "member"
+  }
+}
+```
+Success Body
+```json
+{
+  "token": "jwt_token_here"
+}
+```
+---
+- `POST api/v1/verticals/create`
+  Request Body
+```json
+{
+  "google_auth": {
+    "email": "21z334psgtech.ac.in",
+    "google_id_token": "<valid_google_id_token>",
+    "role": "member"
+  }
+}
+```
+Success Body
+```json
+{
+  "token": "jwt_token_here"
+}
+```
+---
+- `GET api/v1/verticals/:id`
+  Request Body
+```json
+{
+  "google_auth": {
+    "email": "21z334psgtech.ac.in",
+    "google_id_token": "<valid_google_id_token>",
+    "role": "member"
+  }
+}
+```
+Success Body
+```json
+{
+  "token": "jwt_token_here"
+}
+```
+---
+- `PUT api/v1/verticals/update/:id`
+  Request Body
+```json
+{
+  "google_auth": {
+    "email": "21z334psgtech.ac.in",
+    "google_id_token": "<valid_google_id_token>",
+    "role": "member"
+  }
+}
+```
+Success Body
+```json
+{
+  "token": "jwt_token_here"
+}
+```
+---
 - `DELETE api/v1/verticals/:id`
+  Request Body
+```json
+{
+  "google_auth": {
+    "email": "21z334psgtech.ac.in",
+    "google_id_token": "<valid_google_id_token>",
+    "role": "member"
+  }
+}
+```
+Success Body
+```json
+{
+  "token": "jwt_token_here"
+}
+```
+---
 
 ### Sample Request: Create Vertical
 ```json
@@ -125,6 +314,7 @@ Tracks events, including creation, updates, and participation.
   }
 }
 ```
+
 
 
 
