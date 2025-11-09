@@ -2,15 +2,17 @@
 
 const express = require('express');
 const router = express.Router();
-const event = require('../controllers/eventController.js');
-const authMiddleware = require('../middleware/authMiddleware.js');
+const eventController = require('../controllers/eventController.js');
+const authMiddleware= require('../middleware/authMiddleware.js');
 
-router.get('/events', verifyToken, eventController.getAllEvents);
-router.get('/events/upcoming', verifyToken, eventController.getUpcomingEvents);
-router.get('/events/past', verifyToken, eventController.getPastEvents);
-router.get('/events/:id', verifyToken, eventController.getEventById);
-router.post('/events', verifyToken, eventController.createEvent);
-router.put('/events/:id', verifyToken, eventController.updateEvent);
-router.delete('/events/:id', verifyToken, eventController.deleteEvent);
+router.get('/events', authMiddleware, eventController.getAllEvents);
+router.get('/events/upcoming', authMiddleware, eventController.getUpcomingEvents);
+router.get('/events/past', authMiddleware, eventController.getPastEvents);
+router.get('/events/:id', authMiddleware, eventController.getEventById);
+router.get('/events/:id', authMiddleware, eventController.getEventById);
+router.get('/events/:id', authMiddleware, eventController.getEventById);
+router.post('/events',authMiddleware, eventController.createEvent);
+router.put('/events/:id', authMiddleware, eventController.updateEvent);
+router.delete('/events/:id',authMiddleware, eventController.deleteEvent);
 
 module.exports = router;
