@@ -12,18 +12,17 @@ exports.getAll = async (req, res) => {
 
 // POST /members
 exports.create = async (req, res) => {
-  // ...existing code in createMember...
-const Vertical = require('../models/Vertical.js');
-const verticalExists = await Vertical.findById(req.body.verticalId);
-if (!verticalExists) {
-  return res.status(404).json({ error: 'Vertical not found' });
-}
-// ...existing code...
   try {
     const member = await Member.create(req.body);
     res.status(201).json(member);
   } catch (err) {
-    res.status(500).json({ error: 'Failed to create member' });
+    if (err.code === 11000) {
+      return res.status(409).json({ message: 'Member with this email already exists' });
+    }
+    if (err.name === 'ValidationError') {
+      return res.status(400).json({ message: 'Validation failed', error: err.message });
+    }
+    res.status(500).json({ message: 'Failed to create member', error: err.message });
   }
 };
 
@@ -44,11 +43,17 @@ exports.getOne = async (req, res) => {
 // PUT /members/:memberId
 exports.update = async (req, res) => {
   try {
-    const updated = await Member.findByIdAndUpdate(req.params.memberId, req.body, { new: true });
-    if (!updated) return res.status(404).json({ message: 'Member not found' });
-    res.json(updated);
+    const updatedMember = await Member.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
+    if (!updatedMember) return res.status(404).json({ message: 'Member not found' });
+    res.status(200).json(updatedMember);
   } catch (err) {
-    res.status(500).json({ error: 'Failed to update member' });
+    if (err.code === 11000) {
+      return res.status(409).json({ message: 'Member with this email already exists' });
+    }
+    if (err.name === 'ValidationError') {
+      return res.status(400).json({ message: 'Validation failed', error: err.message });
+    }
+    res.status(500).json({ message: 'Failed to update member', error: err.message });
   }
 };
 

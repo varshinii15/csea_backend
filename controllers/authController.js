@@ -4,6 +4,7 @@ const { verifyGoogleToken } = require('../utils/googleOAuth.js');
 const { generateToken, verifyToken } = require('../utils/tokenUtils.js');
 
 // Register
+// ...existing code...
 exports.register = async (req, res) => {
   try {
     const { google_auth } = req.body;
@@ -16,8 +17,6 @@ exports.register = async (req, res) => {
     if (payload.email.toLowerCase() !== email.toLowerCase()) {
       return res.status(401).json({ error: 'Email mismatch in token' });
     }
-    const exists = await AdminUser.findOne({ 'google_auth.email': email.toLowerCase() });
-    if (exists) return res.status(409).json({ error: 'User already registered' });
 
     const user = await AdminUser.create({
       google_auth: { email: email.toLowerCase(), role: 'member' },
@@ -27,9 +26,13 @@ exports.register = async (req, res) => {
     const token = generateToken(user._id, { role: user.google_auth.role });
     res.status(201).json({ message: 'User registered successfully', token, role: user.google_auth.role });
   } catch (err) {
+    if (err.code === 11000) {
+      return res.status(409).json({ error: 'User already registered' });
+    }
     res.status(500).json({ error: 'Registration failed', details: err.message });
   }
 };
+// ...existing code...
 
 // Login
 exports.login = async (req, res) => {

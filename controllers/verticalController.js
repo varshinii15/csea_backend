@@ -1,11 +1,18 @@
 
 const Vertical = require('../models/Vertical.js');
 
+// ...existing code...
 exports.createVertical = async (req, res) => {
   try {
     const vertical = await Vertical.create(req.body);
     res.status(201).json(vertical);
   } catch (err) {
+    if (err.code === 11000) {
+      return res.status(409).json({ message: 'Vertical already exists' });
+    }
+    if (err.name === 'ValidationError') {
+      return res.status(400).json({ message: 'Validation failed', error: err.message });
+    }
     res.status(500).json({ message: 'Failed to create vertical', error: err.message });
   }
 };
@@ -31,30 +38,20 @@ exports.getVerticalById = async (req, res) => {
 
 exports.updateVertical = async (req, res) => {
   try {
-    // 408 if no update data
-    if (!req.body || Object.keys(req.body).length === 0) {
-      return res.status(408).json({ message: 'Request Timeout: No update data received' });
-    }
-
-    // Optional: validate vertical_name manually
-    const allowedVerticals = [
-      'obs', 'design', 'pr', 'tech',
-      'content_and_documentation', 'events', 'media'
-    ];
-    if (!allowedVerticals.includes(req.body.vertical_name)) {
-      return res.status(400).json({ message: 'Invalid vertical_name' });
-    }
-
-    const updated = await Vertical.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    if (!updated) {
-      return res.status(404).json({ message: 'Vertical not found' });
-    }
-
-    res.json(updated);
+    const updatedVertical = await Vertical.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
+    if (!updatedVertical) return res.status(404).json({ message: 'Vertical not found' });
+    res.status(200).json(updatedVertical);
   } catch (err) {
+    if (err.code === 11000) {
+      return res.status(409).json({ message: 'Vertical name already exists' });
+    }
+    if (err.name === 'ValidationError') {
+      return res.status(400).json({ message: 'Validation failed', error: err.message });
+    }
     res.status(500).json({ message: 'Failed to update vertical', error: err.message });
   }
 };
+
 exports.deleteVertical = async (req, res) => {
   try {
     const deleted = await Vertical.findByIdAndDelete(req.params.id);

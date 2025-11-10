@@ -52,23 +52,34 @@ exports.getEventById = async (req, res) => {
 // filepath: c:\Users\Varshini\csea_backend\controllers\eventController.js
 exports.createEvent = async (req, res) => {
   try {
-    const event = await Event.create(req.body);
-    res.status(201).json({ data: event });
+    const event = await Event.create({ ...req.body, createdBy: req.user.id });
+    res.status(201).json(event);
   } catch (err) {
-    res.status(400).json({ error: 'Failed to create event', details: err.message });
+    if (err.code === 11000) {
+      return res.status(409).json({ message: 'Event with this title and start date already exists' });
+    }
+    if (err.name === 'ValidationError') {
+      return res.status(400).json({ message: 'Validation failed', error: err.message });
+    }
+    res.status(500).json({ message: 'Failed to create event', error: err.message });
   }
 };
 
 
 // PUT /events/:id
 exports.updateEvent = async (req, res) => {
-
   try {
-    const updated = await Event.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    if (!updated) return res.status(404).json({ error: 'Event not found' });
-    res.status(200).json(updated);
+    const updatedEvent = await Event.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
+    if (!updatedEvent) return res.status(404).json({ message: 'Event not found' });
+    res.status(200).json(updatedEvent);
   } catch (err) {
-    res.status(500).json({ error: 'Failed to update event' });
+    if (err.code === 11000) {
+      return res.status(409).json({ message: 'Event with this title and start date already exists' });
+    }
+    if (err.name === 'ValidationError') {
+      return res.status(400).json({ message: 'Validation failed', error: err.message });
+    }
+    res.status(500).json({ message: 'Failed to update event', error: err.message });
   }
 };
 
