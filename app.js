@@ -1,11 +1,8 @@
 // app.js
-const cors = require('cors');
 const dotenv = require('dotenv');
-
-// Load environment variables
 dotenv.config();
-console.log('JWT_SECRET:', process.env.JWT_SECRET);
 
+const cors = require('cors');
 const mongoose = require('mongoose');
 const express = require('express');
 

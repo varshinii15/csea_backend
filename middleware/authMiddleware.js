@@ -14,7 +14,7 @@ const authMiddleware = (req, res, next) => {
     const payload = verifyToken(token);
     req.user = payload; // { id, role? }
     next();
-  } catch {
+  } catch(err){
     return res.status(403).json({ message: 'Invalid or expired token' });
   }
 };
