@@ -23,4 +23,7 @@ const memberSchema = new mongoose.Schema({
   roll_no: { type: String, required: true }
 }, { timestamps: true });
 
+// ...existing code...
+memberSchema.index({ verticalId: 1 });
+// ...existing code...
 module.exports = mongoose.model('Member', memberSchema);

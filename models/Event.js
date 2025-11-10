@@ -11,4 +11,8 @@ const eventSchema = new mongoose.Schema({
   eve_reglink: { type: String } // Optional: only for upcoming events
 }, { timestamps: true });
 
+
+eventSchema.index({ startDate: 1, endDate: 1 });
+
+
 module.exports = mongoose.model('Event', eventSchema);

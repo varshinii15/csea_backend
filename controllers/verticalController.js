@@ -1,27 +1,7 @@
-// controllers/VerticalController.js
+
 const Vertical = require('../models/Vertical.js');
-const validateSchema = require('../middleware/validateSchema.js');
 
-const verticalSchema = {
-  type: 'object',
-  required: ['vertical_name'],
-  properties: {
-    vertical_name: {
-      type: 'string',
-      enum: [
-        'obs', 'design', 'pr', 'tech',
-        'content_and_documentation', 'events', 'media'
-      ]
-    }
-  },
-  additionalProperties: false
-};
-
-// Create a new vertical
 exports.createVertical = async (req, res) => {
-  const { valid, errors } = validateSchema(verticalSchema)(req.body);
-  if (!valid) return res.status(400).json({ message: 'Validation failed', errors });
-
   try {
     const vertical = await Vertical.create(req.body);
     res.status(201).json(vertical);
@@ -30,7 +10,6 @@ exports.createVertical = async (req, res) => {
   }
 };
 
-// Get all verticals
 exports.getAllVerticals = async (req, res) => {
   try {
     const verticals = await Vertical.find();
@@ -40,7 +19,6 @@ exports.getAllVerticals = async (req, res) => {
   }
 };
 
-// Get a single vertical by ID
 exports.getVerticalById = async (req, res) => {
   try {
     const vertical = await Vertical.findById(req.params.id);
@@ -51,21 +29,32 @@ exports.getVerticalById = async (req, res) => {
   }
 };
 
-// Update vertical
 exports.updateVertical = async (req, res) => {
-  const { valid, errors } = validateSchema(verticalSchema)(req.body);
-  if (!valid) return res.status(400).json({ message: 'Validation failed', errors });
-
   try {
+    // 408 if no update data
+    if (!req.body || Object.keys(req.body).length === 0) {
+      return res.status(408).json({ message: 'Request Timeout: No update data received' });
+    }
+
+    // Optional: validate vertical_name manually
+    const allowedVerticals = [
+      'obs', 'design', 'pr', 'tech',
+      'content_and_documentation', 'events', 'media'
+    ];
+    if (!allowedVerticals.includes(req.body.vertical_name)) {
+      return res.status(400).json({ message: 'Invalid vertical_name' });
+    }
+
     const updated = await Vertical.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    if (!updated) return res.status(404).json({ message: 'Vertical not found' });
+    if (!updated) {
+      return res.status(404).json({ message: 'Vertical not found' });
+    }
+
     res.json(updated);
   } catch (err) {
     res.status(500).json({ message: 'Failed to update vertical', error: err.message });
   }
 };
-
-// Delete vertical
 exports.deleteVertical = async (req, res) => {
   try {
     const deleted = await Vertical.findByIdAndDelete(req.params.id);
@@ -76,7 +65,6 @@ exports.deleteVertical = async (req, res) => {
   }
 };
 
-// Check if vertical exists by name
 exports.checkVertical = async (req, res) => {
   try {
     const { vertical_name } = req.params;

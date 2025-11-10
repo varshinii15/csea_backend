@@ -1,49 +1,18 @@
 const Event = require('../models/Event.js');
-const validateSchema = require('../middleware/validateSchema.js');
 
-const eventSchema = {
-  type: 'object',
-  required: [
-    'eve_name', 'eve_descp', 'startDate',
-    'endDate', 'venueStart', 'venueEnd', 'eveimage_url'
-  ],
-  properties: {
-    eve_name: { type: 'string' },
-    eve_descp: { type: 'string' },
-    startDate: { type: 'string', format: 'date-time' },
-    endDate: { type: 'string', format: 'date-time' },
-    venueStart: { type: 'string' },
-    venueEnd: { type: 'string' },
-    eveimage_url: { type: 'string', format: 'uri' },
-    eve_reglink: { type: 'string', format: 'uri' }
-  },
-  additionalProperties: false
-};
+
 
 // GET /events/upcoming
 exports.getUpcomingEvents = async (req, res) => {
   try {
-    const now = new Date();
-    const events = await Event.find({ startDate: { $gt: now } }).sort({ startDate: 1 });
-
-    const formatted = events.map(event => {
-      const e = {
-        _id: event._id,
-        eve_name: event.eve_name,
-        eve_descp: event.eve_descp,
-        startDate: event.startDate,
-        endDate: event.endDate,
-        venueStart: event.venueStart,
-        venueEnd: event.venueEnd,
-        eveimage_url: event.eveimage_url
-      };
-      if (event.eve_reglink) e.eve_reglink = event.eve_reglink;
-      return e;
-    });
-
-    res.status(200).json(formatted);
+    const limit = parseInt(req.query.limit) || 10;
+    const events = await Event.find({ startDate: { $gte: new Date() } })
+      .sort({ startDate: 1 })
+      .limit(limit)
+      .lean();
+    res.status(200).json({ data: events });
   } catch (err) {
-    res.status(500).json({ error: 'Failed to fetch upcoming events' });
+    res.status(500).json({ error: 'Failed to fetch upcoming events', details: err.message });
   }
 };
 
@@ -80,28 +49,19 @@ exports.getEventById = async (req, res) => {
 };
 
 // POST /events
+// filepath: c:\Users\Varshini\csea_backend\controllers\eventController.js
 exports.createEvent = async (req, res) => {
-  const { valid, errors } = validateSchema(eventSchema)(req.body);
-  if (!valid) return res.status(400).json({ message: 'Validation failed', errors });
-
   try {
     const event = await Event.create(req.body);
-    res.status(201).json(event);
+    res.status(201).json({ data: event });
   } catch (err) {
-    res.status(500).json({ error: 'Failed to create event' });
+    res.status(400).json({ error: 'Failed to create event', details: err.message });
   }
-
 };
 
 
 // PUT /events/:id
 exports.updateEvent = async (req, res) => {
-  const { valid, errors } = validateSchema(eventSchema)(req.body);
-  if (!valid) return res.status(400).json({ message: 'Validation failed', errors });
-
-  exports.updateEvent = async (req, res) => {
-  const { valid, errors } = validateSchema(eventSchema)(req.body);
-  if (!valid) return res.status(400).json({ message: 'Validation failed', errors });
 
   try {
     const updated = await Event.findByIdAndUpdate(req.params.id, req.body, { new: true });
@@ -111,7 +71,7 @@ exports.updateEvent = async (req, res) => {
     res.status(500).json({ error: 'Failed to update event' });
   }
 };
-};
+
 
 
 // DELETE /events/:id

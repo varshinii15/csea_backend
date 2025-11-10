@@ -1,157 +1,146 @@
+// ...existing code...
 const AdminUser = require('../models/AdminUser.js');
 const { verifyGoogleToken } = require('../utils/googleOAuth.js');
-const { generateToken } = require('../utils/tokenUtils.js');
-const validateSchema = require('../middleware/validateSchema.js');
+const { generateToken, verifyToken } = require('../utils/tokenUtils.js');
 
-
-const registerSchema = {
-  type: 'object',
-  required: ['google_auth'],
-  properties: {
-    google_auth: {
-      type: 'object',
-      required: ['google_id_token', 'email', 'role'],
-      properties: {
-        google_id_token: { type: 'string', minLength: 1 },
-        email: {
-          type: 'string',
-          pattern: '^(csea\\.cse@psgtech\\.ac\\.in|[0-9]{2}[zn][0-9]{3}@psgtech\\.ac\\.in)$'
-        },
-        role: { type: 'string', enum: ['admin', 'member'] }
-      },
-      additionalProperties: false
-    }
-  },
-  additionalProperties: false
-};
-
-const loginSchema = {
-  type: 'object',
-  required: ['google_auth'],
-  properties: {
-    google_auth: {
-      type: 'object',
-      required: ['email'],
-      properties: {
-        email: {
-          type: 'string',
-          pattern: '^(csea\\.cse@psgtech\\.ac\\.in|[0-9]{2}[zn][0-9]{3}@psgtech\\.ac\\.in)$'
-        }
-      },
-      additionalProperties: false
-    }
-  },
-  additionalProperties: false
-};
-
-const updateSchema = {
-  type: 'object',
-  properties: {
-    google_auth: {
-      type: 'object',
-      properties: {
-        email: {
-          type: 'string',
-          pattern: '^(csea\\.cse@psgtech\\.ac\\.in|[0-9]{2}[zn][0-9]{3}@psgtech\\.ac\\.in)$'
-        },
-        google_id_token: { type: 'string' },
-        role: { type: 'string', enum: ['admin', 'member'] }
-      },
-      additionalProperties: false
-    }
-  },
-  additionalProperties: false
-};
-
-const validateTokenSchema = {
-  type: 'object',
-  required: ['google_id_token'],
-  properties: {
-    google_id_token: { type: 'string', minLength: 1 }
-  },
-  additionalProperties: false
-};
-
+// Register
 exports.register = async (req, res) => {
-  const { valid, errors } = validateSchema(registerSchema)(req.body);
-  if (!valid) return res.status(400).json({ message: 'Validation failed', errors });
-
-  const { google_auth } = req.body;
   try {
-    const payload = await verifyGoogleToken(google_auth.google_id_token);
-    if (payload.email !== google_auth.email)
-      return res.status(400).json({ message: 'Email mismatch in token' });
+    const { google_auth } = req.body;
+    if (!google_auth?.google_id_token || !google_auth?.email) {
+      return res.status(400).json({ error: 'google_id_token and email required' });
+    }
+    const { google_id_token, email } = google_auth;
+    const payload = await verifyGoogleToken(google_id_token);
+    if (!payload.email_verified) return res.status(401).json({ error: 'Email not verified by Google' });
+    if (payload.email.toLowerCase() !== email.toLowerCase()) {
+      return res.status(401).json({ error: 'Email mismatch in token' });
+    }
+    const exists = await AdminUser.findOne({ 'google_auth.email': email.toLowerCase() });
+    if (exists) return res.status(409).json({ error: 'User already registered' });
 
-    const existing = await AdminUser.findOne({ 'google_auth.email': google_auth.email });
-    if (existing) return res.status(409).json({ message: 'User already registered' });
+    const user = await AdminUser.create({
+      google_auth: { email: email.toLowerCase(), role: 'member' },
+      googleSub: payload.sub || undefined
+    });
 
-    const user = await AdminUser.create({ google_auth });
-    const token = generateToken(user._id);
-    res.status(201).json({ token });
+    const token = generateToken(user._id, { role: user.google_auth.role });
+    res.status(201).json({ message: 'User registered successfully', token, role: user.google_auth.role });
   } catch (err) {
-    res.status(401).json({ message: 'Invalid Google ID token', error: err.message });
+    res.status(500).json({ error: 'Registration failed', details: err.message });
   }
 };
 
-
+// Login
 exports.login = async (req, res) => {
-  const { valid, errors } = validateSchema(loginSchema)(req.body);
-  if (!valid) return res.status(400).json({ message: 'Validation failed', errors });
+  try {
+    const { google_auth } = req.body;
+    if (!google_auth?.google_id_token || !google_auth?.email) {
+      return res.status(400).json({ error: 'google_id_token and email required' });
+    }
+    const { google_id_token, email } = google_auth;
+    const payload = await verifyGoogleToken(google_id_token);
+    if (!payload.email_verified) return res.status(401).json({ error: 'Email not verified by Google' });
+    if (payload.email.toLowerCase() !== email.toLowerCase()) {
+      return res.status(401).json({ error: 'Email mismatch in token' });
+    }
+    const user = await AdminUser.findOne({ 'google_auth.email': email.toLowerCase() });
+    if (!user) return res.status(404).json({ error: 'User not found' });
 
-  const { google_auth } = req.body;
-  const user = await AdminUser.findOne({ 'google_auth.email': google_auth.email });
-  if (!user) return res.status(404).json({ message: 'User not found' });
+    if (!user.googleSub && payload.sub) {
+      user.googleSub = payload.sub;
+      await user.save();
+    }
 
-  const token = generateToken(user._id);
-  res.json({ token });
+    const token = generateToken(user._id, { role: user.google_auth.role });
+    res.status(200).json({ message: 'Login successful', token, role: user.google_auth.role });
+  } catch (err) {
+    res.status(500).json({ error: 'Login failed', details: err.message });
+  }
 };
 
-
+// Me
 exports.me = async (req, res) => {
-  const user = await AdminUser.findById(req.user.id);
-  res.json(user);
+  try {
+    const user = await AdminUser.findById(req.user.id).lean();
+    if (!user) return res.status(404).json({ error: 'User not found' });
+    return res.json(user);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch user', details: err.message });
+  }
 };
 
-exports.logout = async (req, res) => {
-  res.status(200).json({ message: 'Logged out (client should delete token)' });
-};
-
+// Update (email change requires fresh Google token)
 exports.update = async (req, res) => {
-  const { valid, errors } = validateSchema(updateSchema)(req.body);
-  if (!valid) return res.status(400).json({ message: 'Validation failed', errors });
+  try {
+    const { google_auth } = req.body;
+    if (!google_auth?.email || !google_auth?.google_id_token) {
+      return res.status(400).json({ error: 'email and google_id_token required' });
+    }
+    const payload = await verifyGoogleToken(google_auth.google_id_token);
+    if (!payload.email_verified) return res.status(401).json({ error: 'Email not verified by Google' });
+    if (payload.email.toLowerCase() !== google_auth.email.toLowerCase()) {
+      return res.status(401).json({ error: 'Email token verification failed' });
+    }
 
-  const updated = await AdminUser.findByIdAndUpdate(req.user.id, req.body, { new: true });
-  res.json(updated);
+    const updatedUser = await AdminUser.findByIdAndUpdate(
+      req.user.id,
+      { $set: { 'google_auth.email': google_auth.email.toLowerCase() } },
+      { new: true, runValidators: true }
+    );
+    if (!updatedUser) return res.status(404).json({ error: 'User not found' });
+
+    res.status(200).json({ message: 'User updated', user: updatedUser });
+  } catch (err) {
+    res.status(500).json({ error: 'Update failed', details: err.message });
+  }
 };
 
-
-
+// Delete
 exports.delete = async (req, res) => {
-  await AdminUser.findByIdAndDelete(req.user.id);
-  res.json({ message: 'Account deleted' });
+  try {
+    const deleted = await AdminUser.findByIdAndDelete(req.user.id);
+    if (!deleted) return res.status(404).json({ error: 'User not found' });
+    res.json({ message: 'Account deleted' });
+  } catch (err) {
+    res.status(500).json({ error: 'Deletion failed', details: err.message });
+  }
 };
 
-exports.roles = (req, res) => {
+// Roles
+exports.roles = (_req, res) => {
   res.json(['admin', 'member']);
 };
 
+// Validate token
 exports.validate = async (req, res) => {
-  const { valid, errors } = validateSchema(validateTokenSchema)(req.body);
-  if (!valid) return res.status(400).json({ message: 'Validation failed', errors });
-
-  const { google_id_token } = req.body;
   try {
-    const payload = await verifyGoogleToken(google_id_token);
-    const role = payload.email === 'csea.cse@psgtech.ac.in' ? 'admin' : 'member';
-    res.json({ email: payload.email, role });
+    const authHeader = req.headers.authorization;
+    if (!authHeader?.startsWith('Bearer ')) {
+      return res.status(400).json({ error: 'Missing Authorization header' });
+    }
+    const token = authHeader.split(' ')[1];
+    const decoded = verifyToken(token);
+    const user = await AdminUser.findById(decoded.id);
+    if (!user) return res.status(404).json({ error: 'User not found' });
+    res.json({ valid: true, email: user.google_auth.email, role: user.google_auth.role });
   } catch (err) {
-    res.status(401).json({ message: 'Invalid token' });
+    res.status(401).json({ error: 'Invalid token', details: err.message });
   }
 };
 
-
-
+// Check existence by email
 exports.check = async (req, res) => {
-  const user = await AdminUser.findOne({ 'google_auth.email': req.params.email });
-  res.json({ exists: !!user });
+  try {
+    const email = req.params.email.toLowerCase();
+    const user = await AdminUser.findOne({ 'google_auth.email': email });
+    res.json({ exists: !!user });
+  } catch (err) {
+    res.status(500).json({ error: 'Check failed', details: err.message });
+  }
+};
+
+// Logout (client side token discard)
+exports.logout = (_req, res) => {
+  res.json({ message: 'Logged out (client must discard token)' });
 };

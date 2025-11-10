@@ -1,26 +1,20 @@
-const { verifyToken } = require('../utils/tokenUtils');
+const { verifyToken } = require('../utils/tokenUtils.js');
 
 const authMiddleware = (req, res, next) => {
-  const authHeader = req.headers.authorization;
+  const authHeader = req.headers.authorization || req.headers.Authorization;
 
   // Check if Authorization header is present and properly formatted
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return res.status(401).json({ message: 'No token provided' });
   }
 
-  const token = authHeader.split(' ')[1];
+ const token = authHeader.slice(7);
 
   try {
-    // Verify the token using your JWT secret
-    const decoded = verifyToken(token);
-
-    // Attach decoded user info to request object
-    req.user = decoded;
-
-    // Proceed to next middleware or route handler
+    const payload = verifyToken(token);
+    req.user = payload; // { id, role? }
     next();
-  } catch (err) {
-    console.error('Token verification failed:', err.message);
+  } catch {
     return res.status(403).json({ message: 'Invalid or expired token' });
   }
 };
