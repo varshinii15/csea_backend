@@ -40,8 +40,8 @@ const memberSchema = {
 
 router.get('/', authMiddleware, member.getAll);
 router.post('/', authMiddleware ,validateSchema(memberSchema),member.create);
-router.get('/:memberId', authMiddleware, member.getOne);
-router.put('/:memberId', authMiddleware,validateSchema(memberSchema), member.update);
-router.delete('/:memberId', authMiddleware, member.delete);
+router.get('/:id', authMiddleware, member.getOne);
+router.put('/:id', authMiddleware,validateSchema(memberSchema), member.update);
+router.delete('/:id', authMiddleware, member.delete);
 
 module.exports = router;

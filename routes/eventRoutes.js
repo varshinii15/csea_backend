@@ -25,10 +25,10 @@ const eventSchema = {
   additionalProperties: false
 };
 
-router.get('/',authMiddleware, eventController.getAllEvents);
-router.get('/upcoming',authMiddleware, eventController.getUpcomingEvents);
-router.get('/past',authMiddleware, eventController.getPastEvents);
-router.get('/:id', authMiddleware, eventController.getEventById);
+router.get('/',eventController.getAllEvents);
+router.get('/:id', eventController.getEventById);
+router.get('/upcoming', eventController.getUpcomingEvents);
+router.get('/past',eventController.getPastEvents);
 router.post('/',authMiddleware,validateSchema(eventSchema), eventController.createEvent);
 router.put('/:id', authMiddleware,validateSchema(eventSchema), eventController.updateEvent);
 router.delete('/:id',authMiddleware, eventController.deleteEvent);

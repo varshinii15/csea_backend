@@ -4,8 +4,16 @@ const Vertical = require('../models/Vertical.js');
 // ...existing code...
 exports.createVertical = async (req, res) => {
   try {
-    const vertical = await Vertical.create(req.body);
-    res.status(201).json(vertical);
+    const { vertical_name } = req.body;
+    if (!vertical_name) {
+      return res.status(400).json({ message: 'vertical_name is required' });
+    }
+    const exists = await Vertical.findOne({ vertical_name: new RegExp(`^${vertical_name}$`, 'i') }).lean();
+    if (exists) {
+      return res.status(409).json({ message: 'Vertical already exists' });
+    }
+    const vertical = await Vertical.create({ vertical_name: vertical_name.trim() });
+    return res.status(201).json(vertical);
   } catch (err) {
     if (err.code === 11000) {
       return res.status(409).json({ message: 'Vertical already exists' });
@@ -13,10 +21,9 @@ exports.createVertical = async (req, res) => {
     if (err.name === 'ValidationError') {
       return res.status(400).json({ message: 'Validation failed', error: err.message });
     }
-    res.status(500).json({ message: 'Failed to create vertical', error: err.message });
+    return res.status(500).json({ message: 'Failed to create vertical', error: err.message });
   }
 };
-
 exports.getAllVerticals = async (req, res) => {
   try {
     const verticals = await Vertical.find();

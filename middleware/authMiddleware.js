@@ -1,20 +1,20 @@
 const { verifyToken } = require('../utils/tokenUtils.js');
 
 const authMiddleware = (req, res, next) => {
-  const authHeader = req.headers.authorization || req.headers.Authorization;
+  const authHeader = (req.headers.authorization || req.headers.Authorization || '').trim();
 
-  // Check if Authorization header is present and properly formatted
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+  // Expect "Bearer <token>"
+  const [scheme, token] = authHeader.split(' ');
+
+  if (!scheme || scheme.toLowerCase() !== 'bearer' || !token) {
     return res.status(401).json({ message: 'No token provided' });
   }
 
- const token = authHeader.slice(7);
-
   try {
     const payload = verifyToken(token);
-    req.user = payload; // { id, role? }
-    next();
-  } catch(err){
+    req.user = payload; // { id, role, iat, exp }
+    return next();
+  } catch (err) {
     return res.status(403).json({ message: 'Invalid or expired token' });
   }
 };

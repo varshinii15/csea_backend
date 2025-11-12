@@ -16,5 +16,7 @@ const verticalSchema = new mongoose.Schema({
   }
 }, { timestamps: true });
 
+// ...existing code...
 
+// ...existing code...
 module.exports = mongoose.model('Vertical', verticalSchema);

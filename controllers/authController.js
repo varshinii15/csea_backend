@@ -18,6 +18,12 @@ exports.register = async (req, res) => {
       return res.status(401).json({ error: 'Email mismatch in token' });
     }
 
+    // Check if user already exists BEFORE creating
+    const exists = await AdminUser.findOne({ 'google_auth.email': email.toLowerCase() });
+    if (exists) {
+      return res.status(409).json({ error: 'User already registered' });
+    }
+
     const user = await AdminUser.create({
       google_auth: { email: email.toLowerCase(), role: 'member' },
       googleSub: payload.sub || undefined
@@ -26,6 +32,7 @@ exports.register = async (req, res) => {
     const token = generateToken(user._id, { role: user.google_auth.role });
     res.status(201).json({ message: 'User registered successfully', token, role: user.google_auth.role });
   } catch (err) {
+    // Keep 11000 check as fallback for race conditions
     if (err.code === 11000) {
       return res.status(409).json({ error: 'User already registered' });
     }

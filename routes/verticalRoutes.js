@@ -21,10 +21,10 @@ const verticalSchema = {
 
 
 
-router.post('/create',validateSchema(verticalSchema), vertical.createVertical);
+router.post('/',authMiddleware,validateSchema(verticalSchema), vertical.createVertical);
 router.get('/all',vertical.getAllVerticals);
 router.get('/:id',vertical.getVerticalById);
-router.put('/update/:id', authMiddleware,validateSchema(verticalSchema), vertical.updateVertical);
-router.delete('/delete/:id', authMiddleware, vertical.deleteVertical);
+router.put('/:id', authMiddleware,validateSchema(verticalSchema), vertical.updateVertical);
+router.delete('/:id',authMiddleware,vertical.deleteVertical);
 router.get('/check/:vertical_name',vertical.checkVertical);
 module.exports = router;
