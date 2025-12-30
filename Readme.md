@@ -161,7 +161,7 @@ Success Message
 ]
 ```
 ---
-- `POST api/v1/verticals/create`
+- `POST api/v1/verticals/`
   
 Create a new vertical.
   
@@ -191,7 +191,7 @@ Success Message
 }
 ```
 ---
-- `PUT api/v1/verticals/update/:id`
+- `PUT api/v1/verticals/:id`
   
 Updates a vertical.
   
@@ -220,10 +220,10 @@ Success Message
 }
 ```
 ---
-## 👥 Member Module (`api/v1/verticals/:verticalId/members/`)  
+## 👥 Member Module (`api/v1/verticals/:id/members/`)  
 Handles member profiles within each vertical.
 
-- `GET api/v1/verticals/:verticalId/members`
+- `GET api/v1/verticals/:id/members`
 
 Fetches all members in a vertical.
  
@@ -241,7 +241,7 @@ Success Message
 ```
 ---
    
-- `POST api/v1/verticals/:verticalId/members`
+- `POST api/v1/verticals/:id/members`
   
 Creates a new member.
 
@@ -267,7 +267,7 @@ Success Message
 }
 ```
 ---
-- `GET api/v1/verticals/:verticalId/members/:memberId`
+- `GET api/v1/verticals/:id/members/:id`
   
 Get Member details by vertical.
   
@@ -283,7 +283,7 @@ Success Message
 }
 ```
 ---
-- `PUT api/v1/verticals/:verticalId/members/:memberId`
+- `PUT api/v1/verticals/:id/members/:id`
   
 Updates the member details.
   
@@ -309,7 +309,7 @@ Success Message
 }
 ```
 ---
-- `DELETE api/v1/verticals/:verticalId/members/:memberId`
+- `DELETE api/v1/verticals/:id/members/:id`
   
 Deletes a member.
   
@@ -405,7 +405,7 @@ Success Message
   "eve_reglink": "https://example.com/register"
 }
 ```
-- `GET api/v1/events/:eventId`
+- `GET api/v1/events/:id`
   
 Fetches the events by ID
 
@@ -423,7 +423,7 @@ Success Message
   "eve_reglink": "https://example.com/register"
 }
 ```
-- `PUT api/v1/events/:eventId`
+- `PUT api/v1/events/:id`
   
 Updates the events details.
   
@@ -454,7 +454,7 @@ Success Message
   "eve_reglink": "https://example.com/updated-register"
 }
 ```
-- `DELETE api/v1/events/:eventId`
+- `DELETE api/v1/events/:id`
 
 Success Message
 ```json
@@ -462,6 +462,7 @@ Success Message
   "message": "Event deleted successfully"
 }
 ```
+
 
 
 
